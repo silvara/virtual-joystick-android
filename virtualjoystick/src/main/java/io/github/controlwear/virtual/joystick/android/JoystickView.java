@@ -109,6 +109,12 @@ public class JoystickView extends View
 
 
     /**
+     * Default behavior to auto re-center button (automatically recenter the button)
+     */
+    private static final boolean DEFAULT_AUTO_RECENTER_BUTTON_HORIZONTAL = false;
+
+
+    /**
      * Default behavior to button stickToBorder (button stay on the border)
      */
     private static final boolean DEFAULT_BUTTON_STICK_TO_BORDER = false;
@@ -156,6 +162,13 @@ public class JoystickView extends View
      * when released or not (false)
      */
     private boolean mAutoReCenterButton;
+
+
+    /**
+     * Used to adapt behavior whether the button is horizontally automatically re-centered (true)
+     * when released or not (false)
+     */
+    private boolean mAutoReCenterButtonHorizontal;
 
 
     /**
@@ -274,6 +287,7 @@ public class JoystickView extends View
             borderWidth = styledAttributes.getDimensionPixelSize(R.styleable.JoystickView_JV_borderWidth, DEFAULT_WIDTH_BORDER);
             mFixedCenter = styledAttributes.getBoolean(R.styleable.JoystickView_JV_fixedCenter, DEFAULT_FIXED_CENTER);
             mAutoReCenterButton = styledAttributes.getBoolean(R.styleable.JoystickView_JV_autoReCenterButton, DEFAULT_AUTO_RECENTER_BUTTON);
+            mAutoReCenterButtonHorizontal = styledAttributes.getBoolean(R.styleable.JoystickView_JV_autoReCenterButtonHorizontal, DEFAULT_AUTO_RECENTER_BUTTON_HORIZONTAL);
             mButtonStickToBorder = styledAttributes.getBoolean(R.styleable.JoystickView_JV_buttonStickToBorder, DEFAULT_BUTTON_STICK_TO_BORDER);
             buttonDrawable = styledAttributes.getDrawable(R.styleable.JoystickView_JV_buttonImage);
             mEnabled = styledAttributes.getBoolean(R.styleable.JoystickView_JV_enabled, true);
@@ -442,9 +456,16 @@ public class JoystickView extends View
             // stop listener because the finger left the touch screen
             mThread.interrupt();
 
+            mPosX = mPosX >= 100 ? 100 : mPosX;
+            mPosY = mPosY >= 100 ? 100 : mPosY;
+
             // re-center the button or not (depending on settings)
             if (mAutoReCenterButton) {
-                resetButtonPosition();
+                if (mAutoReCenterButtonHorizontal) {
+                    resetButtonPositionHorizontal();
+                } else {
+                    resetButtonPosition();
+                }
 
                 // update now the last strength and angle which should be zero after resetButton
                 if (mCallback != null)
@@ -512,7 +533,7 @@ public class JoystickView extends View
             mPosY = (int) ((mPosY - mCenterY) * mBorderRadius / abs + mCenterY);
         }
 
-        if (!mAutoReCenterButton) {
+        if (!mAutoReCenterButton && !mAutoReCenterButtonHorizontal) {
             // Now update the last strength and angle if not reset to center
             if (mCallback != null)
                 mCallback.onMove(getAngle(), getStrength());
@@ -558,6 +579,14 @@ public class JoystickView extends View
     public void resetButtonPosition() {
         mPosX = mCenterX;
         mPosY = mCenterY;
+    }
+
+
+    /**
+     * Reset the button position to the center.
+     */
+    public void resetButtonPositionHorizontal() {
+        mPosX = mCenterX;
     }
 
 
@@ -608,6 +637,15 @@ public class JoystickView extends View
      */
     public boolean isAutoReCenterButton() {
         return mAutoReCenterButton;
+    }
+
+
+    /**
+     * Return the current behavior of the auto re-center button
+     * @return True if automatically re-centered or False if not
+     */
+    public boolean isAutoReCenterButtonHorizontal() {
+        return mAutoReCenterButtonHorizontal;
     }
 
 
@@ -822,6 +860,15 @@ public class JoystickView extends View
      */
     public void setAutoReCenterButton(boolean b) {
         mAutoReCenterButton = b;
+    }
+
+
+    /**
+     * Set the current behavior of the auto re-center button
+     * @param b True if automatically re-centered or False if not
+     */
+    public void setAutoReCenterButtonHorizontal(boolean b) {
+        mAutoReCenterButtonHorizontal = b;
     }
 
 

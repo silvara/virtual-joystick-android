@@ -39,7 +39,7 @@ joystick.setOnMoveListener(new JoystickView.OnMoveListener() { ... }, 17); // ar
 
 ### Attributes
 
-You can customize the joystick according to these attributes `JV_buttonImage`, `JV_buttonColor`, `JV_buttonSizeRatio`, `JV_borderColor`, `JV_borderAlpha`, `JV_borderWidth`, `JV_backgroundColor`, `JV_backgroundSizeRatio`, `JV_fixedCenter`, `JV_autoReCenterButton`, `JV_buttonStickToBorder`, `JV_enabled` and `JV_buttonDirection`
+You can customize the joystick according to these attributes `JV_buttonImage`, `JV_buttonColor`, `JV_buttonSizeRatio`, `JV_borderColor`, `JV_borderAlpha`, `JV_borderWidth`, `JV_backgroundColor`, `JV_backgroundSizeRatio`, `JV_fixedCenter`, `JV_autoReCenterButton`, `JV_autoReCenterButtonHorizontal`, `JV_buttonStickToBorder`, `JV_enabled` and `JV_buttonDirection`
 
 If you specified `JV_buttonImage` you don't need `JV_buttonColor`
 

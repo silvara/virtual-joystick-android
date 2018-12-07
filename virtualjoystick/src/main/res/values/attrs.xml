@@ -20,6 +20,8 @@
 
         <attr name="JV_autoReCenterButton" format="boolean"/>
 
+        <attr name="JV_autoReCenterButtonHorizontal" format="boolean"/>
+
         <attr name="JV_buttonStickToBorder" format="boolean"/>
 
         <attr name="JV_enabled" format="boolean"/>
