@@ -115,6 +115,12 @@ public class JoystickView extends View
 
 
     /**
+     * Default behavior to set initial value zero vertical (not auto-initialize)
+     */
+    private static final boolean DEFAULT_SET_INITIAL_VALUE_ZERO_VERTICAL = false;
+
+
+    /**
      * Default behavior to button stickToBorder (button stay on the border)
      */
     private static final boolean DEFAULT_BUTTON_STICK_TO_BORDER = false;
@@ -169,6 +175,12 @@ public class JoystickView extends View
      * when released or not (false)
      */
     private boolean mAutoReCenterButtonHorizontal;
+
+
+    /**
+     * Initialize vertical(Y-axis) value to minimum. Use this setting with mAutoReCenterButtonHorizontal is true
+     */
+    private boolean mSetInitialValueZeroVertical;
 
 
     /**
@@ -288,6 +300,7 @@ public class JoystickView extends View
             mFixedCenter = styledAttributes.getBoolean(R.styleable.JoystickView_JV_fixedCenter, DEFAULT_FIXED_CENTER);
             mAutoReCenterButton = styledAttributes.getBoolean(R.styleable.JoystickView_JV_autoReCenterButton, DEFAULT_AUTO_RECENTER_BUTTON);
             mAutoReCenterButtonHorizontal = styledAttributes.getBoolean(R.styleable.JoystickView_JV_autoReCenterButtonHorizontal, DEFAULT_AUTO_RECENTER_BUTTON_HORIZONTAL);
+            mSetInitialValueZeroVertical = styledAttributes.getBoolean(R.styleable.JoystickView_JV_setInitialValueZeroVertical, DEFAULT_SET_INITIAL_VALUE_ZERO_VERTICAL);
             mButtonStickToBorder = styledAttributes.getBoolean(R.styleable.JoystickView_JV_buttonStickToBorder, DEFAULT_BUTTON_STICK_TO_BORDER);
             buttonDrawable = styledAttributes.getDrawable(R.styleable.JoystickView_JV_buttonImage);
             mEnabled = styledAttributes.getBoolean(R.styleable.JoystickView_JV_enabled, true);
@@ -401,6 +414,10 @@ public class JoystickView extends View
         mBorderRadius = (int) (d / 2 * mBackgroundSizeRatio);
         mBackgroundRadius = mBorderRadius - (mPaintCircleBorder.getStrokeWidth() / 2);
 
+
+        if (mSetInitialValueZeroVertical)
+            mPosY += mBorderRadius;
+
         if (mButtonBitmap != null)
             mButtonBitmap = Bitmap.createScaledBitmap(mButtonBitmap, mButtonRadius * 2, mButtonRadius * 2, true);
     }
@@ -456,16 +473,15 @@ public class JoystickView extends View
             // stop listener because the finger left the touch screen
             mThread.interrupt();
 
-            mPosX = mPosX >= 100 ? 100 : mPosX;
-            mPosY = mPosY >= 100 ? 100 : mPosY;
-
             // re-center the button or not (depending on settings)
             if (mAutoReCenterButton) {
-                if (mAutoReCenterButtonHorizontal) {
-                    resetButtonPositionHorizontal();
-                } else {
-                    resetButtonPosition();
-                }
+                resetButtonPosition();
+
+                // update now the last strength and angle which should be zero after resetButton
+                if (mCallback != null)
+                    mCallback.onMove(getAngle(), getStrength());
+            } else if (mAutoReCenterButtonHorizontal) {
+                resetButtonPositionHorizontal();
 
                 // update now the last strength and angle which should be zero after resetButton
                 if (mCallback != null)
@@ -492,7 +508,7 @@ public class JoystickView extends View
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 // when the first touch occurs we update the center (if set to auto-defined center)
-                if (!mFixedCenter) {
+                if (mFixedCenter) {
                     mCenterX = mPosX;
                     mCenterY = mPosY;
                 }
@@ -533,7 +549,7 @@ public class JoystickView extends View
             mPosY = (int) ((mPosY - mCenterY) * mBorderRadius / abs + mCenterY);
         }
 
-        if (!mAutoReCenterButton && !mAutoReCenterButtonHorizontal) {
+        if (!mAutoReCenterButton) {
             // Now update the last strength and angle if not reset to center
             if (mCallback != null)
                 mCallback.onMove(getAngle(), getStrength());
